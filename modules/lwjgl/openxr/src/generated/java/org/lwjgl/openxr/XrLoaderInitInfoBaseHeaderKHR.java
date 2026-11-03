@@ -140,6 +140,11 @@ public class XrLoaderInitInfoBaseHeaderKHR extends Struct<XrLoaderInitInfoBaseHe
         return new XrLoaderInitInfoBaseHeaderKHR(value.address(), __getContainer(value));
     }
 
+    /** Upcasts the specified {@code XrLoaderInitInfoAndroidKHR} instance to {@code XrLoaderInitInfoBaseHeaderKHR}. */
+    public static XrLoaderInitInfoBaseHeaderKHR create(XrLoaderInitInfoAndroidKHR value) {
+        return new XrLoaderInitInfoBaseHeaderKHR(value.address(), __getContainer(value));
+    }
+
     /**
      * Returns a new {@link XrLoaderInitInfoBaseHeaderKHR.Buffer} instance allocated with {@link MemoryUtil#memAlloc memAlloc}. The instance must be explicitly freed.
      *
@@ -185,6 +190,11 @@ public class XrLoaderInitInfoBaseHeaderKHR extends Struct<XrLoaderInitInfoBaseHe
 
     /** Upcasts the specified {@code XrLoaderInitInfoPropertiesEXT.Buffer} instance to {@code XrLoaderInitInfoBaseHeaderKHR.Buffer}. */
     public static XrLoaderInitInfoBaseHeaderKHR.Buffer create(XrLoaderInitInfoPropertiesEXT.Buffer value) {
+        return new XrLoaderInitInfoBaseHeaderKHR.Buffer(value.address(), __getContainer(value), -1, 0, value.remaining(), value.remaining());
+    }
+
+    /** Upcasts the specified {@code XrLoaderInitInfoAndroidKHR.Buffer} instance to {@code XrLoaderInitInfoBaseHeaderKHR.Buffer}. */
+    public static XrLoaderInitInfoBaseHeaderKHR.Buffer create(XrLoaderInitInfoAndroidKHR.Buffer value) {
         return new XrLoaderInitInfoBaseHeaderKHR.Buffer(value.address(), __getContainer(value), -1, 0, value.remaining(), value.remaining());
     }
 

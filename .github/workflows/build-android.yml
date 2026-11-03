@@ -27,15 +27,8 @@ jobs:
       run: |
         export JAVA8_HOME=$JAVA_HOME_8_${{runner.arch}}
         export LWJGL_BUILD_ARCH=${{matrix.arch}}
-        export GENERATE_OPENXR=1
+        # The OpenXR sources are committed; set GENERATE_OPENXR=1 only after changing openxr templates
         bash ci_build_android.bash
-
-    # Commit these back into the branch so later builds no longer need the generator pass
-    - name: Upload regenerated OpenXR sources
-      uses: actions/upload-artifact@v4
-      with:
-        name: lwjgl-3.4.1-openxr-generated
-        path: modules/lwjgl/openxr/src/generated
 
     - name: Upload modules release output
       uses: actions/upload-artifact@v4
