@@ -55,20 +55,11 @@ public final class Library {
             );
         }
 
-        // QuestCraft: load liblwjgl before pojavexec. QuestCraft's pojavexec initializes the GLFW stub
-        // from JNI_OnLoad, and the stub creates a GLFWErrorCallback, which on 3.4 needs LibFFI's natives
-        // from liblwjgl; loaded the other way round, GLFW fails with UnsatisfiedLinkError (FFI_TYPE_DOUBLE).
+        // QuestCraft: only liblwjgl, as in QuestCraft's 3.3.3 fork. Amethyst loads its pojavexec here, but
+        // QuestCraft's pojavexec initializes QuestCraft's GLFW stub from JNI_OnLoad, and that stub needs a
+        // fully initialized MemoryUtil/LibFFI. Loading it from this static initializer (reached through
+        // MemoryUtil.<clinit>) made GLFW's initialization fail; the GLFW stub loads pojavexec itself.
         loadSystem("org.lwjgl", JNI_LIBRARY_NAME);
-        try {
-            // pojavexec is used to bridge GLFW with Android/iOS and loading vulkan driver for Android.
-            if (Platform.get() == Platform.MACOSX) {
-                System.load(System.getenv("BUNDLE_PATH") + "/AngelAuraAmethyst");
-            } else if (Platform.get() == Platform.LINUX) {
-                System.loadLibrary("pojavexec");
-            }
-        } catch (UnsatisfiedLinkError e) {
-            e.printStackTrace();
-        }
     }
 
     private Library() {}
