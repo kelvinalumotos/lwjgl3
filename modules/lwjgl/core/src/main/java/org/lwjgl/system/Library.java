@@ -55,6 +55,10 @@ public final class Library {
             );
         }
 
+        // QuestCraft: load liblwjgl before pojavexec. QuestCraft's pojavexec initializes the GLFW stub
+        // from JNI_OnLoad, and the stub creates a GLFWErrorCallback, which on 3.4 needs LibFFI's natives
+        // from liblwjgl; loaded the other way round, GLFW fails with UnsatisfiedLinkError (FFI_TYPE_DOUBLE).
+        loadSystem("org.lwjgl", JNI_LIBRARY_NAME);
         try {
             // pojavexec is used to bridge GLFW with Android/iOS and loading vulkan driver for Android.
             if (Platform.get() == Platform.MACOSX) {
@@ -65,7 +69,6 @@ public final class Library {
         } catch (UnsatisfiedLinkError e) {
             e.printStackTrace();
         }
-        loadSystem("org.lwjgl", JNI_LIBRARY_NAME);
     }
 
     private Library() {}
