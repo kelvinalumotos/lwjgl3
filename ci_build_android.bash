@@ -82,7 +82,7 @@ wget -nc "https://github.com/AngelAuraMC/shaderc/releases/latest/download/libsha
 unzip -o libshaderc-$NDK_ABI.zip -d $LWJGL_NATIVE/shaderc
 
 # Bindings shared by the optional OpenXR generation pass and the build.
-# QuestCraft additionally needs egl, lmdb, openvr and openxr (Vivecraft's OpenXR backend), and jemalloc's classes.
+# QuestCraft additionally needs egl, lmdb and openxr (Vivecraft's OpenXR backend), and jemalloc's classes. OpenVR was dropped from LWJGL in 3.4.
 LWJGL_FLAGS=(
   -Dplatform.linux=true
   -Dbinding.assimp=false
@@ -107,7 +107,7 @@ LWJGL_FLAGS=(
   -Dbinding.odbc=false
   -Dbinding.opengles=false
   -Dbinding.opencl=false
-  -Dbinding.openvr=true
+  -Dbinding.openvr=false
   -Dbinding.openxr=true
   -Dbinding.opus=false
   -Dbinding.par=false
@@ -139,7 +139,8 @@ yes | ant init # Needed to download deps like kotlinc. We can't have this run of
 # The OpenXR Android/GLES extensions live only in the templates, so regenerate the openxr module once.
 # Every other generated file is reset afterwards: those carry hand edits the generator would undo.
 if [ "$GENERATE_OPENXR" == "1" ]; then
-  yes | ant "${LWJGL_FLAGS[@]}" compile-templates generate
+  # lwjglx ships only hand-written sources, no templates
+  yes | ant "${LWJGL_FLAGS[@]}" -Dbinding.lwjglx=false compile-templates generate
   git diff --name-only -- modules | grep -v '^modules/lwjgl/openxr/' | xargs -r git checkout --
   git ls-files --others --exclude-standard -- modules | grep -v '^modules/lwjgl/openxr/' | xargs -r rm -f
   git status --short -- modules/lwjgl/openxr
