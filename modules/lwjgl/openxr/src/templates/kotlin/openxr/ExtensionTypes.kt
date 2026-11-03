@@ -4505,3 +4505,40 @@ val XrLoaderInitInfoPropertiesEXT = struct(Module.OPENXR, "XrLoaderInitInfoPrope
     AutoSize("propertyValues")..uint32_t("propertyValueCount")
     XrLoaderInitPropertyValueEXT.const.p("propertyValues")
 }
+// Android / OpenGL ES structs used by QuestCraft (ported from QuestCraftPlusPlus/lwjgl3 wip/rebase_3.3.3)
+
+val XrInstanceCreateInfoAndroidKHR = struct(Module.OPENXR, "XrInstanceCreateInfoAndroidKHR") {
+    Expression("#TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR")..XrStructureType("type")
+    nullable..opaque_const_p("next")
+    opaque_p("applicationVM")
+    opaque_p("applicationActivity")
+}
+
+val XrLoaderInitInfoAndroidKHR = struct(Module.OPENXR, "XrLoaderInitInfoAndroidKHR", parentStruct = XrLoaderInitInfoBaseHeaderKHR) {
+    Expression("#TYPE_LOADER_INIT_INFO_ANDROID_KHR")..XrStructureType("type")
+    nullable..opaque_const_p("next")
+    opaque_p("applicationVM")
+    opaque_p("applicationContext")
+}
+
+val XrGraphicsBindingOpenGLESAndroidKHR = struct(Module.OPENXR, "XrGraphicsBindingOpenGLESAndroidKHR") {
+    javaImport("org.lwjgl.egl.*")
+    Expression("#TYPE_GRAPHICS_BINDING_OPENGL_ES_ANDROID_KHR")..XrStructureType("type")
+    nullable..opaque_const_p("next")
+    EGLDisplay("display")
+    EGLConfig("config")
+    EGLContext("context")
+}
+
+val XrSwapchainImageOpenGLESKHR = struct(Module.OPENXR, "XrSwapchainImageOpenGLESKHR", mutable = false, parentStruct = XrSwapchainImageBaseHeader) {
+    Expression("#TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR")..XrStructureType("type").mutable()
+    nullable..opaque_p("next").mutable()
+    uint32_t("image")
+}
+
+val XrGraphicsRequirementsOpenGLESKHR = struct(Module.OPENXR, "XrGraphicsRequirementsOpenGLESKHR") {
+    Expression("#TYPE_GRAPHICS_REQUIREMENTS_OPENGL_ES_KHR")..XrStructureType("type")
+    nullable..opaque_p("next")
+    XrVersion("minApiVersionSupported")
+    XrVersion("maxApiVersionSupported")
+}

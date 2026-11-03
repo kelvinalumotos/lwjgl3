@@ -81,62 +81,77 @@ wget -nc $POJAV_NATIVES/libopenal.so -P $LWJGL_NATIVE/openal
 wget -nc "https://github.com/AngelAuraMC/shaderc/releases/latest/download/libshaderc-$NDK_ABI.zip"
 unzip -o libshaderc-$NDK_ABI.zip -d $LWJGL_NATIVE/shaderc
 
+# Bindings shared by the optional OpenXR generation pass and the build.
+# QuestCraft additionally needs egl, lmdb, openvr and openxr (Vivecraft's OpenXR backend), and jemalloc's classes.
+LWJGL_FLAGS=(
+  -Dplatform.linux=true
+  -Dbinding.assimp=false
+  -Dbinding.bgfx=false
+  -Dbinding.cuda=false
+  -Dbinding.egl=true
+  -Dbinding.fmod=false
+  -Dbinding.harfbuzz=false
+  -Dbinding.hwloc=false
+  -Dbinding.jawt=false
+  -Dbinding.jemalloc=true
+  -Dbinding.ktx=false
+  -Dbinding.libdivide=false
+  -Dbinding.llvm=false
+  -Dbinding.lmdb=true
+  -Dbinding.lz4=false
+  -Dbinding.meow=false
+  -Dbinding.meshoptimizer=false
+  -Dbinding.msdfgen=false
+  -Dbinding.nfd=false
+  -Dbinding.nuklear=false
+  -Dbinding.odbc=false
+  -Dbinding.opengles=false
+  -Dbinding.opencl=false
+  -Dbinding.openvr=true
+  -Dbinding.openxr=true
+  -Dbinding.opus=false
+  -Dbinding.par=false
+  -Dbinding.remotery=false
+  -Dbinding.renderdoc=false
+  -Dbinding.rpmalloc=false
+  -Dbinding.sse=false
+  -Dbinding.spng=true
+  -Dbinding.tinyexr=false
+  -Dbinding.tinyfd=true
+  -Dbinding.tootle=false
+  -Dbinding.xxhash=false
+  -Dbinding.yoga=false
+  -Dbinding.zstd=false
+  -Dbinding.shaderc=true
+  -Dbinding.sdl=true
+  -Dbinding.vulkan=true
+  -Dbinding.vma=true
+  -Dbinding.spvc=true
+  -Dbuild.type=release/3.4.1
+  -Djavadoc.skip=true
+  "-Dnashorn.args=--no-deprecation-warning"
+  -Djdk25=true
+)
+
+ant -version
+yes | ant init # Needed to download deps like kotlinc. We can't have this run offline, else jspecify fails to compile the kotlin properly and the missing annotations cause compile errors.
+
+# The OpenXR Android/GLES extensions live only in the templates, so regenerate the openxr module once.
+# Every other generated file is reset afterwards: those carry hand edits the generator would undo.
+if [ "$GENERATE_OPENXR" == "1" ]; then
+  yes | ant "${LWJGL_FLAGS[@]}" compile-templates generate
+  git diff --name-only -- modules | grep -v '^modules/lwjgl/openxr/' | xargs -r git checkout --
+  git ls-files --others --exclude-standard -- modules | grep -v '^modules/lwjgl/openxr/' | xargs -r rm -f
+  git status --short -- modules/lwjgl/openxr
+fi
+
 # HACK: Skip compiling and running the generator to save time and keep LWJGLX functions
 mkdir -p bin/classes/{generator,templates/META-INF}
 touch bin/classes/{generator,templates}/touch.txt bin/classes/generator/generated-touch.txt
 
 # Build LWJGL 3
-ant -version
-yes | ant init # Needed to download deps like kotlinc. We can't have this run offline, else jspecify fails to compile the kotlin properly and the missing annotations cause compile errors.
 export LWJGL_BUILD_OFFLINE=true
-yes | ant -Dplatform.linux=true \
-  -Dbinding.assimp=false \
-  -Dbinding.bgfx=false \
-  -Dbinding.cuda=false \
-  -Dbinding.egl=false \
-  -Dbinding.fmod=false \
-  -Dbinding.harfbuzz=false \
-  -Dbinding.hwloc=false \
-  -Dbinding.jawt=false \
-  -Dbinding.jemalloc=false \
-  -Dbinding.ktx=false \
-  -Dbinding.libdivide=false \
-  -Dbinding.llvm=false \
-  -Dbinding.lmdb=false \
-  -Dbinding.lz4=false \
-  -Dbinding.meow=false \
-  -Dbinding.meshoptimizer=false \
-  -Dbinding.msdfgen=false \
-  -Dbinding.nfd=false \
-  -Dbinding.nuklear=false \
-  -Dbinding.odbc=false \
-  -Dbinding.opengles=false \
-  -Dbinding.opencl=false \
-  -Dbinding.openvr=false \
-  -Dbinding.openxr=false \
-  -Dbinding.opus=false \
-  -Dbinding.par=false \
-  -Dbinding.remotery=false \
-  -Dbinding.renderdoc=false \
-  -Dbinding.rpmalloc=false \
-  -Dbinding.sse=false \
-  -Dbinding.spng=true \
-  -Dbinding.tinyexr=false \
-  -Dbinding.tinyfd=true \
-  -Dbinding.tootle=false \
-  -Dbinding.xxhash=false \
-  -Dbinding.yoga=false \
-  -Dbinding.zstd=false \
-  -Dbinding.shaderc=true \
-  -Dbinding.sdl=true \
-  -Dbinding.vulkan=true \
-  -Dbinding.vma=true \
-  -Dbinding.spvc=true \
-  -Dbuild.type=release/3.4.1 \
-  -Djavadoc.skip=true \
-  -Dnashorn.args="--no-deprecation-warning" \
-  -Djdk25=true \
-  compile compile-native release
+yes | ant "${LWJGL_FLAGS[@]}" compile compile-native release
 # shaderc, vulkan, spvc, and vma can be reenabled if needed but for now, including them just leads to conflicts and crashes cause cinnabar overrides it.
 
 # Copy native libraries
