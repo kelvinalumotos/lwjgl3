@@ -40,8 +40,11 @@ public class SOFTSystemEvents {
     @NativeType("ALCenum")
     public static int alcEventIsSupportedSOFT(@NativeType("ALCenum") int eventType, @NativeType("ALCenum") int deviceType) {
 		long __functionAddress = ALC.getICD().alcEventIsSupportedSOFT;
-        if (CHECKS) {
-            check(__functionAddress);
+        // QuestCraft: the OpenAL Soft shipped on Android predates ALC_SOFT_system_events. Minecraft 26.1
+        // calls this without checking the extension, so report the event as unsupported instead of failing
+        // with a null function pointer; Minecraft then falls back to polling for device changes.
+        if (__functionAddress == NULL) {
+            return ALC_EVENT_NOT_SUPPORTED_SOFT;
         }
         return invokeI(eventType, deviceType, __functionAddress);
     }
